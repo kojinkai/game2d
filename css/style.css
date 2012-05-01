@@ -217,6 +217,21 @@ td { vertical-align: top; }
 /* ==|== primary styles =====================================================
    Author:
    ========================================================================== */
+#wrapper {
+	width: 672px;
+	margin: 0 auto;                        
+	padding: 10px;
+	border: 1px solid #E9E9E9;
+	box-shadow: 1px 1px 10px 1px rgba(0,0,0,0.4);
+}
+
+#content {
+	width: 670px;
+}
+
+#main-canvas {
+	border: 1px solid #E5E5E5;
+}
 
 
 
