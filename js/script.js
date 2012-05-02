@@ -34,7 +34,23 @@ var game2d = game2d || {};
 			gunDeltaY = 0,
 			gunSpeedX = 10,
 			gunSpeedY = 6,
-			gunMotion; 
+			gunMotion,
+			
+			// The bullet
+			bullWidth = 6,
+			bullHeight = 12,
+			bullX = gunX - ( bullWidth / 2),
+			bullY = gunY - bullHeight,
+			// bullDeltaX = 0,
+			// bullDeltaY = 0,
+			bullSpeed = 10,
+			bullFired = false,
+			bulletsLive = [ // { bullY: cvs.height - 10 },
+			// 											{ bullY: cvs.height - 40 },
+			// 											{ bullY: cvs.height - 70 }
+			]; 
+
+		game.fps = 50;
 		
 		game.renderGun = function() {				
 				
@@ -58,7 +74,7 @@ var game2d = game2d || {};
 						gunDeltaX = gunSpeedX;
 						break;
 					case 'UP':
-						gunDeltaY = -gunSpeedX;
+						gunDeltaY = -gunSpeedY;
 						break;
 					case 'DOWN':
 						gunDeltaY = gunSpeedY;
@@ -68,20 +84,47 @@ var game2d = game2d || {};
 						gunDeltaY = 0;
 			}
 			
-			gunX = gunX + gunDeltaX;
-			gunY = gunY + gunDeltaY;
+			// If gun reaches the side of the screen, then don't let it move any further
+			if ( ( gunX - gunWidth/2 ) + gunDeltaX < 0 || ( gunX - gunWidth/2 ) + gunDeltaX + gunWidth > cvs.width ) {
+				gunDeltaX = 0; 
+			}
+
+			if ( ( gunY + gunDeltaY ) - gunHeight < 0 || gunY + gunDeltaY > cvs.height ) {
+				gunDeltaY = 0; 
+			}
+	
+			gunX += gunDeltaX;
+			gunY += gunDeltaY;
+			bullX = gunX - ( bullWidth / 2);
+			// bullY = gunY - bullHeight;
 			
 		};
-			
-		game.animate = function() {
-				ctx.clearRect( 0, 0, cvs.width, cvs.height );
-				game2d.renderGun();
-				game2d.moveGun();
+		game.renderBullet = function( y ) {
+			ctx.fillStyle = "#000";
+			ctx.beginPath();
+			ctx.arc(gunX, y, 5, 0, Math.PI*2, true);
+			ctx.closePath();
+			ctx.fill();
+		};
+		
+		game.newBullet = function() {
+			if ( bulletsLive.length > 0 ) {
+				var i = 0;
+				for ( i; i < bulletsLive.length; i++ ) {
+					console.log(bulletsLive[i].bullY);
+					game2d.renderBullet( bulletsLive[i].bullY );
+					bulletsLive[i].bullY += -bullSpeed;
+				}
+			}
+			else {
+				return;
+			}
 		};
 			
 		game.startGame = function() {
 			// Start Tracking Keystokes
 			$(document).keydown(function(evt) {
+				console.log(evt.keyCode);
 				switch ( evt.keyCode ) {
 						case 37:
 							gunMotion = 'LEFT';
@@ -95,6 +138,12 @@ var game2d = game2d || {};
 						case 40:
 							gunMotion = 'DOWN';
 							break;
+						case 32:
+							(function() {
+								bulletsLive.push({bullY: gunY});
+								console.log(bulletsLive);
+							})();
+							break;
 				}
 			});         
 
@@ -104,14 +153,22 @@ var game2d = game2d || {};
 				}
 				
 			});
-			var gameLoop = setInterval(game2d.animate,20);
+			/*var gameLoop =*/ setInterval( game2d.animate, 1000/game2d.fps );
+			// game2d.animate();
 		};
 			
 		game.endGame = function() {
 			clearInterval(gameLoop);
 			ctx.fillText("Game Erver", cvs.width/2, cvs.height/2);
 		};
-			
+		
+		game.animate = function() {
+				ctx.clearRect( 0, 0, cvs.width, cvs.height );
+				game2d.renderGun();
+				game2d.moveGun();
+				game2d.newBullet();
+				game2d.renderBullet();
+		};
 })(game2d, game2d_init_canvas, game2d_init_context);
 
 // Setting off the functions / gameloop
