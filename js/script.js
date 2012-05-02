@@ -45,10 +45,7 @@ var game2d = game2d || {};
 			// bullDeltaY = 0,
 			bullSpeed = 10,
 			bullFired = false,
-			bulletsLive = [ // { bullY: cvs.height - 10 },
-			// 											{ bullY: cvs.height - 40 },
-			// 											{ bullY: cvs.height - 70 }
-			]; 
+			bulletsLive = []; 
 
 		game.fps = 50;
 		
@@ -111,13 +108,16 @@ var game2d = game2d || {};
 			if ( bulletsLive.length > 0 ) {
 				var i = 0;
 				for ( i; i < bulletsLive.length; i++ ) {
+					if ( bulletsLive[i].bullY < 0 ) {
+						bulletsLive.shift();
+						console.log(bulletsLive.length);
+					}
+					else {
 					console.log(bulletsLive[i].bullY);
 					game2d.renderBullet( bulletsLive[i].bullY );
 					bulletsLive[i].bullY += -bullSpeed;
+					}
 				}
-			}
-			else {
-				return;
 			}
 		};
 			
