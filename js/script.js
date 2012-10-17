@@ -2,6 +2,10 @@
 
 */
 
+// Pastie here of older reference code for the times when you
+// were moronic enough not to push to git, you idiot
+// http://pastie.org/private/gkmlu2y1x503gwpxirfuaw
+
 // Test to see if the namespace is taken.
 // Initialise the namespace literal.
 var game2d = game2d || {};
@@ -37,9 +41,29 @@ if ( game2d.canvas.getContext ) {
 			bullWidth = 6,
 			bullHeight = 12,
 			bullX,
-			bullY;
+			bullY,
+			bullSpeed = 10;
 
 		game.fps = 50;
+
+		// Bullets
+		function Bullet( x, y ) {
+			this.xpos = x;
+			this.ypos = y;
+		}
+
+		Bullet.prototype.advance = function() {
+			this.y += bullSpeed;
+			ctx.fillStyle = "#000";
+			ctx.beginPath();
+			ctx.arc(this.x, this.y, 5, 0, Math.PI*2, true);
+			ctx.closePath();
+			ctx.fill();				
+		};
+
+		game.newBullet = function( x, y ) {
+			var bullet = new Bullet( x, y );
+		};
 		
 		game.renderGun = function() {				
 				
@@ -101,7 +125,6 @@ if ( game2d.canvas.getContext ) {
 			gunX += gunDeltaX;
 			gunY += gunDeltaY;
 			bullX = gunX - ( bullWidth / 2);
-			// bullY = gunY - bullHeight;
 			
 		};
 			
@@ -133,14 +156,12 @@ if ( game2d.canvas.getContext ) {
 							break;
 						case 40 && 39:
 							gunMotion = 'DOWNRIGHT';
+							break;
 						case 32:
-							(function() {
-								bullX = gunX - ( bullWidth / 2);
-								bulletsLive.push({bullY: gunY});
-							})();
+							game.newBullet(gunX, gunY);
 							break;
 				}
-			});         
+			});
 
 			$(document).keyup(function(evt) {
 				console.log(evt.keyCode);
