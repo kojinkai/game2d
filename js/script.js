@@ -37,12 +37,7 @@ if ( game2d.canvas.getContext ) {
 			bullWidth = 6,
 			bullHeight = 12,
 			bullX,
-			bullY = gunY - bullHeight,
-			// bullDeltaX = 0,
-			// bullDeltaY = 0,
-			bullSpeed = 10,
-			bullFired = false,
-			bulletsLive = []; 
+			bullY;
 
 		game.fps = 50;
 		
@@ -73,6 +68,22 @@ if ( game2d.canvas.getContext ) {
 					case 'DOWN':
 						gunDeltaY = gunSpeedY;
 						break;
+					case 'UPLEFT':
+							gunDeltaY = -gunSpeedY;
+							gunDeltaX = -gunSpeedX;
+						break;
+					case 'UPRIGHT':
+							gunDeltaY = -gunSpeedY;
+							gunDeltaX = gunSpeedX;
+						break;
+					case 'DOWNLEFT':
+							gunDeltaY = gunSpeedY;
+							gunDeltaX = -gunSpeedX;
+						break;
+					case 'DOWNRIGHT':
+							gunDeltaY = gunSpeedY;
+							gunDeltaX = gunSpeedX;
+						break;
 					default:
 						gunDeltaX = 0;
 						gunDeltaY = 0;
@@ -93,28 +104,6 @@ if ( game2d.canvas.getContext ) {
 			// bullY = gunY - bullHeight;
 			
 		};
-		game.renderBullet = function( y ) {
-			ctx.fillStyle = "#000";
-			ctx.beginPath();
-			ctx.arc(bullX, y, 5, 0, Math.PI*2, true);
-			ctx.closePath();
-			ctx.fill();
-		};
-		
-		game.newBullet = function() {
-			if ( bulletsLive.length > 0 ) {
-				var i = 0;
-				for ( i; i < bulletsLive.length; i++ ) {
-					if ( bulletsLive[i].bullY < 0 ) {
-						bulletsLive.shift();
-					}
-					else {
-					game2d.renderBullet( bulletsLive[i].bullY );
-					bulletsLive[i].bullY += -bullSpeed;
-					}
-				}
-			}
-		};
 			
 		game.startGame = function() {
 			// Start Tracking Keystokes
@@ -133,6 +122,17 @@ if ( game2d.canvas.getContext ) {
 						case 40:
 							gunMotion = 'DOWN';
 							break;
+						case 37 && 38:
+							gunMotion = 'UPLEFT';
+							break;
+						case 38 && 39:
+							gunMotion = 'UPRIGHT';
+							break;
+						case 40 && 38:
+							gunMotion = 'DOWNLEFT';
+							break;
+						case 40 && 39:
+							gunMotion = 'DOWNRIGHT';
 						case 32:
 							(function() {
 								bullX = gunX - ( bullWidth / 2);
@@ -160,8 +160,6 @@ if ( game2d.canvas.getContext ) {
 				ctx.clearRect( 0, 0, cvs.width, cvs.height );
 				game2d.renderGun();
 				game2d.moveGun();
-				game2d.newBullet();
-				game2d.renderBullet();
 		};
 })(game2d, game2d.canvas, game2d.context);
 
