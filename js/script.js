@@ -36,6 +36,7 @@ if ( game2d.canvas.getContext ) {
 			gunSpeedX = 10,
 			gunSpeedY = 6,
 			gunMotion,
+			bulletArr = [],
 			
 			// The bullet
 			bullWidth = 6,
@@ -44,7 +45,7 @@ if ( game2d.canvas.getContext ) {
 			bullY,
 			bullSpeed = 10;
 
-		game.fps = 50;
+		game.fps = 10;
 
 		// Bullets
 		function Bullet( x, y ) {
@@ -53,16 +54,24 @@ if ( game2d.canvas.getContext ) {
 		}
 
 		Bullet.prototype.advance = function() {
-			this.y += bullSpeed;
+			console.log('deets: ' + this.ypos, bullSpeed);
 			ctx.fillStyle = "#000";
 			ctx.beginPath();
-			ctx.arc(this.x, this.y, 5, 0, Math.PI*2, true);
+			ctx.arc(this.xpos, this.ypos, 5, 0, Math.PI*2, true);
 			ctx.closePath();
 			ctx.fill();				
 		};
 
-		game.newBullet = function( x, y ) {
+		var newBullet = function( x, y ) {
 			var bullet = new Bullet( x, y );
+			bulletArr.push(bullet);
+		};
+
+		game.moveBullets = function() {
+			var i = 0;
+			for ( i; i < bulletArr.length; i++ ) {
+				bulletArr[i].advance();
+			}
 		};
 		
 		game.renderGun = function() {				
@@ -158,7 +167,7 @@ if ( game2d.canvas.getContext ) {
 							gunMotion = 'DOWNRIGHT';
 							break;
 						case 32:
-							game.newBullet(gunX, gunY);
+							newBullet(gunX, gunY);
 							break;
 				}
 			});
@@ -170,17 +179,18 @@ if ( game2d.canvas.getContext ) {
 				}
 				
 			});
-			setInterval( game2d.animate, 100/game2d.fps );
+			setInterval( game2d.animate, 1000/game2d.fps );
 		};
 			
 		game.endGame = function() {
-			ctx.fillText("Game Erver", cvs.width/2, cvs.height/2);
+			return bulletArr;
 		};
 		
 		game.animate = function() {
 				ctx.clearRect( 0, 0, cvs.width, cvs.height );
 				game2d.renderGun();
 				game2d.moveGun();
+				game2d.moveBullets();
 		};
 })(game2d, game2d.canvas, game2d.context);
 
