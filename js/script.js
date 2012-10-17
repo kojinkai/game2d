@@ -2,18 +2,15 @@
 
 */
 
-// Initialise Canvas with safer global variables
-var game2d_init_canvas = document.getElementById('main-canvas');
-if ( game2d_init_canvas.getContext ) {
-	var game2d_init_context = game2d_init_canvas.getContext( '2d' );
-}
-
-// Namespacing pattern courtesy of Addy Osmani
-// http://addyosmani.com/blog/essential-js-namespacing/
-
 // Test to see if the namespace is taken.
 // Initialise the namespace literal.
 var game2d = game2d || {};
+
+// Initialise Canvas with safer global variables
+game2d.canvas = document.getElementById('main-canvas');
+if ( game2d.canvas.getContext ) {
+	game2d.context = game2d.canvas.getContext( '2d' );
+}
 
 // Rendering the cast.
 // The game2d object, the canvas and the context
@@ -39,7 +36,7 @@ var game2d = game2d || {};
 			// The bullet
 			bullWidth = 6,
 			bullHeight = 12,
-			bullX = gunX - ( bullWidth / 2),
+			bullX,
 			bullY = gunY - bullHeight,
 			// bullDeltaX = 0,
 			// bullDeltaY = 0,
@@ -99,7 +96,7 @@ var game2d = game2d || {};
 		game.renderBullet = function( y ) {
 			ctx.fillStyle = "#000";
 			ctx.beginPath();
-			ctx.arc(gunX, y, 5, 0, Math.PI*2, true);
+			ctx.arc(bullX, y, 5, 0, Math.PI*2, true);
 			ctx.closePath();
 			ctx.fill();
 		};
@@ -110,10 +107,8 @@ var game2d = game2d || {};
 				for ( i; i < bulletsLive.length; i++ ) {
 					if ( bulletsLive[i].bullY < 0 ) {
 						bulletsLive.shift();
-						console.log(bulletsLive.length);
 					}
 					else {
-					console.log(bulletsLive[i].bullY);
 					game2d.renderBullet( bulletsLive[i].bullY );
 					bulletsLive[i].bullY += -bullSpeed;
 					}
@@ -124,7 +119,7 @@ var game2d = game2d || {};
 		game.startGame = function() {
 			// Start Tracking Keystokes
 			$(document).keydown(function(evt) {
-				console.log(evt.keyCode);
+				
 				switch ( evt.keyCode ) {
 						case 37:
 							gunMotion = 'LEFT';
@@ -140,25 +135,24 @@ var game2d = game2d || {};
 							break;
 						case 32:
 							(function() {
+								bullX = gunX - ( bullWidth / 2);
 								bulletsLive.push({bullY: gunY});
-								console.log(bulletsLive);
 							})();
 							break;
 				}
 			});         
 
 			$(document).keyup(function(evt) {
+				console.log(evt.keyCode);
 				if ( evt.keyCode == 37 || evt.keyCode == 38 || evt.keyCode == 39 || evt.keyCode == 40 ) {
 					gunMotion = 'NONE';
 				}
 				
 			});
-			/*var gameLoop =*/ setInterval( game2d.animate, 1000/game2d.fps );
-			// game2d.animate();
+			setInterval( game2d.animate, 100/game2d.fps );
 		};
 			
 		game.endGame = function() {
-			clearInterval(gameLoop);
 			ctx.fillText("Game Erver", cvs.width/2, cvs.height/2);
 		};
 		
@@ -169,7 +163,7 @@ var game2d = game2d || {};
 				game2d.newBullet();
 				game2d.renderBullet();
 		};
-})(game2d, game2d_init_canvas, game2d_init_context);
+})(game2d, game2d.canvas, game2d.context);
 
 // Setting off the functions / gameloop
 		game2d.startGame();
