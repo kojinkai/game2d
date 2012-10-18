@@ -45,7 +45,7 @@ if ( game2d.canvas.getContext ) {
 			bullY,
 			bullSpeed = 10;
 
-		game.fps = 10;
+		game.fps = 50;
 
 		// Bullets
 		function Bullet( x, y ) {
@@ -54,7 +54,7 @@ if ( game2d.canvas.getContext ) {
 		}
 
 		Bullet.prototype.advance = function() {
-			console.log('deets: ' + this.ypos, bullSpeed);
+			this.ypos -= bullSpeed;
 			ctx.fillStyle = "#000";
 			ctx.beginPath();
 			ctx.arc(this.xpos, this.ypos, 5, 0, Math.PI*2, true);
