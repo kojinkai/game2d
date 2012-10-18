@@ -40,16 +40,14 @@ if ( game2d.canvas.getContext ) {
 			astArr		= [],
 			astCount  = 0,
 			//Asteroid Frequency
-			difficulty	= 10, 
+			difficulty	= 50, 
 			
 			// The bullet
 			bullWidth = 6,
-			bullHeight = 12,
 			bullX,
-			bullY,
 			bullSpeed = 10;
 
-		game.fps = 10;
+		game.fps = 50;
 
 		// Random x co-ords
 		// Returns a random integer between min and max
@@ -99,7 +97,7 @@ if ( game2d.canvas.getContext ) {
 			for ( i; i < bulletArr.length; i++ ) {
 				if ( bulletArr[i].ypos <= 0 ) {
 					bulletArr.splice(i,i);
-				}
+				}			
 				else {
 					bulletArr[i].advance();
 				}
@@ -125,12 +123,16 @@ if ( game2d.canvas.getContext ) {
 			}
 			else {
 				astCount = 0;
-				newObj( getRandomInt( 10, cvs.width-10 ), -20, Asteroid, astArr, getRandomInt( 2, 100 ), getRandomInt( 2, 10 ));			
+				// xpos, ypos, object prototype, object's array, asteroid's speed, asteroid's size
+				newObj( getRandomInt( 10, cvs.width-10 ), -20, Asteroid, astArr, getRandomInt( 5, 10 ), getRandomInt( 7, 30 ));			
 			}		
 		};
 
-		game.debug = function( obj ) {
-			return obj;
+		game.debug = function() {
+			return {
+				b: bulletArr,
+				a: astArr
+			};
 		};
 		
 		game.renderGun = function() {				
@@ -238,7 +240,7 @@ if ( game2d.canvas.getContext ) {
 				}
 				
 			});
-			setInterval( game2d.animate, 1000/game2d.fps );
+				setInterval( game2d.animate, 1000/game2d.fps );
 		};
 			
 		game.endGame = function() {
