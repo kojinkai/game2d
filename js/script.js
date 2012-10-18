@@ -37,6 +37,10 @@ if ( game2d.canvas.getContext ) {
 			gunSpeedY = 6,
 			gunMotion,
 			bulletArr = [],
+			astArr		= [],
+			astCount  = 0,
+			//Asteroid Frequency
+			difficulty	= 10, 
 			
 			// The bullet
 			bullWidth = 6,
@@ -45,7 +49,13 @@ if ( game2d.canvas.getContext ) {
 			bullY,
 			bullSpeed = 10;
 
-		game.fps = 50;
+		game.fps = 10;
+
+		// Random x co-ords
+		// Returns a random integer between min and max
+		function getRandomInt( min, max ) {
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
 
 		// Bullets
 		function Bullet( x, y ) {
@@ -62,16 +72,65 @@ if ( game2d.canvas.getContext ) {
 			ctx.fill();				
 		};
 
-		var newBullet = function( x, y ) {
-			var bullet = new Bullet( x, y );
-			bulletArr.push(bullet);
+		//Asteroids
+		function Asteroid( x, y, speed, size ) {
+			this.xpos = x;
+			this.ypos = y;						
+			this.speed = speed;
+			this.size = size;
+		}
+
+		Asteroid.prototype.advance = function() {
+			this.ypos += this.speed;
+			ctx.fillStyle = "#FF0000";
+			ctx.beginPath();
+			ctx.arc(this.xpos, this.ypos, this.size, 0, Math.PI*2, true);
+			ctx.closePath();
+			ctx.fill();				
 		};
+
+		var newObj = function( x, y, obj, arr, speed, size ) {
+			var activeItem = new obj( x, y, speed, size );
+			arr.push(activeItem);
+		};		
 
 		game.moveBullets = function() {
 			var i = 0;
 			for ( i; i < bulletArr.length; i++ ) {
-				bulletArr[i].advance();
+				if ( bulletArr[i].ypos <= 0 ) {
+					bulletArr.splice(i,i);
+				}
+				else {
+					bulletArr[i].advance();
+				}
 			}
+		};
+
+		game.moveAsteroids = function() {
+			var i = 0;
+			for ( i; i < astArr.length; i++ ) {
+				if ( astArr[i].ypos >= cvs.height ) {
+					astArr.splice(i,i);
+				}
+				else {
+					astArr[i].advance();
+				}
+			}
+		};
+
+		game.updateAstField = function() {
+			if ( astCount < difficulty ) {
+				astCount++;
+				return false;
+			}
+			else {
+				astCount = 0;
+				newObj( getRandomInt( 10, cvs.width-10 ), -20, Asteroid, astArr, getRandomInt( 2, 100 ), getRandomInt( 2, 10 ));			
+			}		
+		};
+
+		game.debug = function( obj ) {
+			return obj;
 		};
 		
 		game.renderGun = function() {				
@@ -167,7 +226,7 @@ if ( game2d.canvas.getContext ) {
 							gunMotion = 'DOWNRIGHT';
 							break;
 						case 32:
-							newBullet(gunX, gunY);
+							newObj(gunX, gunY, Bullet, bulletArr);
 							break;
 				}
 			});
@@ -191,6 +250,8 @@ if ( game2d.canvas.getContext ) {
 				game2d.renderGun();
 				game2d.moveGun();
 				game2d.moveBullets();
+				game2d.moveAsteroids();
+				game2d.updateAstField();
 		};
 })(game2d, game2d.canvas, game2d.context);
 
