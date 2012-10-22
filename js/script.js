@@ -11,7 +11,7 @@
 var game2d = game2d || {};
 var keymapper;
 
-// Initialise Canvas with safer global variables
+// Initialise Canvas
 game2d.canvas = document.getElementById('main-canvas');
 if ( game2d.canvas.getContext ) {
 	game2d.context = game2d.canvas.getContext( '2d' );
@@ -88,18 +88,43 @@ if ( game2d.canvas.getContext ) {
 			ctx.fill();
 		};
 
+		Asteroid.prototype.explode = function() {
+			console.log('explode');
+		};
+
 		var newObj = function( x, y, obj, arr, speed, size ) {
 			var activeItem = new obj( x, y, speed, size );
 			arr.push(activeItem);
 		};
 
+		function collider( x, y, a, b ) {
+			if ( x >= a-10 && x <= a+10 && y >= b-10 && y <= b+10 ) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+
 		game.moveBullets = function() {
-			var i = 0;
-			for ( i; i < bulletArr.length; i++ ) {
-				if ( bulletArr[i].ypos <= 0 ) {
+			var x, y, a, b, i, j;
+
+			for ( i = 0; i < bulletArr.length; i++ ) {
+				x = bulletArr[i].xpos;
+				y = bulletArr[i].ypos;
+				for ( j = 0; j < astArr.length; j++ ) {
+					a = astArr[j].xpos;
+					b = astArr[j].ypos;
+					if ( collider( x, y, a, b ) ) {
+						astArr[j].explode();
+						bulletArr.splice(i,i);
+					}					
+				}
+				if ( y <= 0 ) {
 					bulletArr.splice(i,i);
 				}
-				else {
+				else if (bulletArr[i]) {
 					bulletArr[i].advance();
 				}
 			}
@@ -129,12 +154,10 @@ if ( game2d.canvas.getContext ) {
 			}
 		};
 
-		game.debug = function() {
-			return {
+		game.debug = {
 				b: bulletArr,
 				a: astArr
 			};
-		};
 
 		game.renderGun = function() {
 			ctx.fillStyle = gunColour;
@@ -162,6 +185,9 @@ if ( game2d.canvas.getContext ) {
 			}
 			if (keymapper.isActive(keymapper.DOWN)) {
 				gunDeltaY = gunSpeedY;
+			}
+			if (keymapper.isActive(keymapper.SHOOT)) {
+				newObj(gunX, gunY, Bullet, bulletArr);
 			}
 
 			// If gun reaches the side of the screen, then don't let it move any further
@@ -223,7 +249,7 @@ if ( game2d.canvas.getContext ) {
 })(game2d, game2d.canvas, game2d.context);
 
 // Setting off the functions / gameloop
-		game2d.startGame();
+game2d.startGame();
 
 
 
