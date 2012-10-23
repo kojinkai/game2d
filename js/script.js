@@ -26,6 +26,7 @@ if ( game2d.canvas.getContext ) {
 		// Functions declared below should
 		// inherit these variables
 		var
+			gameLoop,
 			// The Gun
 			gunX = cvs.width/2,
 			gunY = cvs.height - 10,
@@ -71,12 +72,33 @@ if ( game2d.canvas.getContext ) {
 			ctx.fill();
 		};
 
+		Bullet.prototype.explode = function() {
+			this.advance = function() {
+				var t = this;
+				if ( t.counter <= 3 ) {
+					var y = t.ypos;
+					t.size+=1;
+					ctx.fillStyle = "#000";
+					ctx.beginPath();
+					ctx.arc(t.xpos, y, t.size, 0, Math.PI*2, true);
+					ctx.closePath();
+					ctx.fill();
+					t.counter++; 
+				}
+				else {
+					var num = bulletArr.indexOf(t);
+					bulletArr.splice(num, num);					
+				}
+			};
+		};
+
 		//Asteroids
 		function Asteroid( x, y, speed, size ) {
 			this.xpos = x;
 			this.ypos = y;
 			this.speed = speed;
 			this.size = size;
+			this.counter = 0;
 		}
 
 		Asteroid.prototype.advance = function() {
@@ -89,7 +111,23 @@ if ( game2d.canvas.getContext ) {
 		};
 
 		Asteroid.prototype.explode = function() {
-			console.log('explode');
+			this.advance = function() {
+				var t = this;
+				if ( t.counter <= 5 ) {
+					var y = t.ypos;
+					t.size+=3;
+					ctx.fillStyle = "#FF0000";
+					ctx.beginPath();
+					ctx.arc(t.xpos, y, t.size, 0, Math.PI*2, true);
+					ctx.closePath();
+					ctx.fill();
+					t.counter++;
+				}
+				else {
+					var num = astArr.indexOf(t);
+					astArr.splice(num, num);
+				}
+			};
 		};
 
 		var newObj = function( x, y, obj, arr, speed, size ) {
@@ -97,8 +135,8 @@ if ( game2d.canvas.getContext ) {
 			arr.push(activeItem);
 		};
 
-		function collider( x, y, a, b ) {
-			if ( x >= a-10 && x <= a+10 && y >= b-10 && y <= b+10 ) {
+		function collider( x, y, a, b, s ) {
+			if ( x >= a-s && x <= a+s && y >= b-s && y <= b+s ) {
 				return true;
 			}
 			else {
@@ -116,12 +154,15 @@ if ( game2d.canvas.getContext ) {
 				for ( j = 0; j < astArr.length; j++ ) {
 					a = astArr[j].xpos;
 					b = astArr[j].ypos;
-					if ( collider( x, y, a, b ) ) {
+					s = astArr[j].size;
+					if ( collider( x, y, a, b, s ) ) {
+						bulletArr[i].explode();
 						astArr[j].explode();
-						bulletArr.splice(i,i);
 					}					
 				}
 				if ( y <= 0 ) {
+
+					// if the asteroid goes off screen
 					bulletArr.splice(i,i);
 				}
 				else if (bulletArr[i]) {
@@ -231,11 +272,16 @@ if ( game2d.canvas.getContext ) {
 				keymapper.keyUpListener(evt.keyCode);
 			});
 
-			setInterval( game2d.animate, 1000/game2d.fps );
+			$('#stop-game').on('click', function(e) {
+				e.preventDefault();
+				game.endGame();
+			});
+
+			gameLoop = setInterval( game2d.animate, 1000/game2d.fps );
 		};
 
 		game.endGame = function() {
-			return bulletArr;
+			clearInterval(gameLoop);
 		};
 
 		game.animate = function() {
